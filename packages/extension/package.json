@@ -1,0 +1,167 @@
+{
+  "name": "pedagogue-extension",
+  "displayName": "Pedagogue",
+  "description": "AI-powered pedagogical tutor for high-school CS students",
+  "version": "0.1.0",
+  "publisher": "pedagogue",
+  "private": true,
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Education",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onChatParticipant:pedagogue.tutor"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "pedagogue.tutor",
+        "name": "tutor",
+        "fullName": "Pedagogue Tutor",
+        "description": "Your AI coding tutor — learns from your code, adapts to your understanding.",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "explain",
+            "description": "Explain selected code"
+          },
+          {
+            "name": "debug",
+            "description": "Help debug an error"
+          },
+          {
+            "name": "review",
+            "description": "Review my code for learning"
+          },
+          {
+            "name": "defend",
+            "description": "Start voice defense interview"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "pedagogue.setup",
+        "title": "Pedagogue: Setup Project"
+      },
+      {
+        "command": "pedagogue.defend",
+        "title": "Pedagogue: Start Defense Interview"
+      },
+      {
+        "command": "pedagogue.signIn",
+        "title": "Pedagogue: Sign In"
+      },
+      {
+        "command": "pedagogue.signOut",
+        "title": "Pedagogue: Sign Out"
+      },
+      {
+        "command": "pedagogue.openSkillGraph",
+        "title": "Pedagogue: Open Skill Graph",
+        "shortTitle": "Skill Graph"
+      },
+      {
+        "command": "pedagogue.runTests",
+        "title": "Pedagogue: Run Tests"
+      },
+      {
+        "command": "pedagogue.openLesson",
+        "title": "Pedagogue: Open Lesson"
+      },
+      {
+        "command": "pedagogue.finalizeSession",
+        "title": "Pedagogue: Finalize Session"
+      },
+      {
+        "command": "pedagogue.startPairDebug",
+        "title": "Pedagogue: Start Pair Debug"
+      },
+      {
+        "command": "pedagogue.runWithTutor",
+        "title": "Pedagogue: Run With Tutor Terminal"
+      },
+      {
+        "command": "pedagogue.prewarmCache",
+        "title": "Pedagogue: Prewarm Cache (Demo)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "editor.action.inlineSuggest.trigger",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "command": "pedagogue.defend",
+        "key": "ctrl+alt+d",
+        "mac": "cmd+alt+d"
+      },
+      {
+        "command": "pedagogue.openSkillGraph",
+        "key": "ctrl+alt+g",
+        "mac": "cmd+alt+g"
+      }
+    ],
+    "configuration": {
+      "title": "Pedagogue",
+      "properties": {
+        "pedagogue.backendUrl": {
+          "type": "string",
+          "default": "https://pedagogue.app",
+          "description": "Pedagogue backend URL"
+        }
+      }
+    },
+    "notebooks": [
+      {
+        "type": "tutor-lesson",
+        "displayName": "Pedagogue Lesson",
+        "selector": [
+          {
+            "filenamePattern": "*.lesson.ipynb"
+          }
+        ]
+      }
+    ],
+    "languages": [
+      {
+        "id": "tutor-lesson",
+        "aliases": [
+          "Pedagogue Lesson"
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "vsce package",
+    "lint": "echo 'TODO: eslint'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "@pedagogue/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.46.0",
+    "tree-sitter-wasms": "^0.1.13",
+    "web-tree-sitter": "^0.22.6",
+    "y-websocket": "^2.0.4",
+    "yjs": "^13.6.20",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.95.0",
+    "@vscode/vsce": "latest",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3"
+  }
+}

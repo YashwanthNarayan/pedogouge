@@ -5,6 +5,7 @@ import { PedagogueUriHandler } from "./auth/uri-handler";
 import { PedagogueAuthProvider } from "./auth/provider";
 import { executeSignIn } from "./commands/sign-in";
 import { executeSignOut } from "./commands/sign-out";
+import { initParser, applyDocumentEdits, invalidateDocument } from "./ast";
 
 let _sessionId: string | undefined;
 
@@ -59,6 +60,25 @@ export function activate(context: vscode.ExtensionContext) {
     }),
     vscode.commands.registerCommand("pedagogue.prewarmCache", () => {
       vscode.window.showInformationMessage("Pedagogue: Prewarm Cache (T1-14 stub)");
+    }),
+  );
+
+  // Tree-sitter parser — init once; language WASMs load in parallel (T1-05)
+  initParser(context).then(() => {
+    log.info("Tree-sitter parser ready");
+  }).catch((err) => {
+    log.warn(`Tree-sitter init failed: ${(err as Error).message}`);
+  });
+
+  // Incremental re-parse on document change
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      if (event.contentChanges.length > 0) {
+        applyDocumentEdits(event.document, event.contentChanges);
+      }
+    }),
+    vscode.workspace.onDidCloseTextDocument((doc) => {
+      invalidateDocument(doc.uri.toString());
     }),
   );
 
