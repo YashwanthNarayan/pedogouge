@@ -1,0 +1,31 @@
+{
+  "name": "@pedagogue/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "pedagogue": "./dist/bin/pedagogue.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/bin/pedagogue.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'TODO: eslint'",
+    "seed:demo": "tsx src/seed-demo.ts",
+    "ingest:kb": "tsx src/ingest-kb.ts"
+  },
+  "dependencies": {
+    "@pedagogue/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.46.0",
+    "ink": "^5.0.0",
+    "meow": "^13.2.0",
+    "react": "^18.2.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.3"
+  }
+}

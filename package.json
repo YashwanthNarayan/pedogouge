@@ -1,0 +1,36 @@
+{
+  "name": "pedagogue",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Closed-loop AI pedagogical system for high-school CS",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "gen:schemas": "pnpm --filter @pedagogue/shared run gen",
+    "test:rls": "pnpm --filter @pedagogue/infra-tests run test:rls",
+    "seed:demo": "pnpm --filter @pedagogue/cli run seed:demo",
+    "ingest:kb": "pnpm --filter @pedagogue/cli run ingest:kb",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.6.3",
+    "prettier": "^3.3.3",
+    "@types/node": "^22.9.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "infra/y-websocket",
+    "infra/defense-ws"
+  ]
+}
