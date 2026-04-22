@@ -14,12 +14,11 @@
     "@anthropic-ai/sdk": "^0.39.0",
     "@deepgram/sdk": "^3.9.0",
     "@supabase/supabase-js": "^2.46.0",
-    "jsonwebtoken": "^9.0.3",
+    "jose": "^5.9.6",
     "node-fetch": "^3.3.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.19.17",
     "@types/ws": "^8.18.1",
     "tsx": "^4.21.0",

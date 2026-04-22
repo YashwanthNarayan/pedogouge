@@ -6,7 +6,7 @@ import type { IncomingMessage } from "node:http";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createDeepgram, LiveTranscriptionEvents } from "@deepgram/sdk";
 import Anthropic from "@anthropic-ai/sdk";
-import jwt from "jsonwebtoken";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 import { WebSocket } from "ws";
 import { TurnManager } from "./turn-manager.js";
 
@@ -44,18 +44,21 @@ export async function handleConnection(
     return;
   }
 
-  // ── 2. Verify Supabase JWT ───────────────────────────────────────────────
+  // ── 2. Verify Supabase JWT via JWKS (supports both HMAC legacy and ECC) ──
 
-  const jwtSecret = process.env.SUPABASE_JWT_SECRET;
-  if (!jwtSecret) {
-    console.error("[server] SUPABASE_JWT_SECRET not set");
+  const supabaseUrlForJwks = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrlForJwks) {
+    console.error("[server] SUPABASE_URL not set");
     close(ws, 1011, "Server misconfigured");
     return;
   }
 
   let userId: string;
   try {
-    const payload = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
+    const JWKS = createRemoteJWKSet(
+      new URL(`${supabaseUrlForJwks}/auth/v1/.well-known/jwks.json`),
+    );
+    const { payload } = await jwtVerify(token, JWKS);
     const sub = payload.sub ?? (payload as Record<string, string>)["user_id"];
     if (!sub) throw new Error("No subject in JWT");
     userId = sub;
