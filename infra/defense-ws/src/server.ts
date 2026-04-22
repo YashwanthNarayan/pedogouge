@@ -141,7 +141,10 @@ export async function handleConnection(
 
   // ── 5. Create TurnManager ────────────────────────────────────────────────
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  const anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY!,
+    ...(process.env.ANTHROPIC_BASE_URL ? { baseURL: process.env.ANTHROPIC_BASE_URL } : {}),
+  });
   const elevenLabsApiKey = process.env.ELEVENLABS_API_KEY ?? "";
   const webAppBaseUrl = process.env.WEB_APP_URL ?? "http://localhost:3000";
 
