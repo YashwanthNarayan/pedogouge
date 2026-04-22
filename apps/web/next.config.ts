@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  serverExternalPackages: ["@anthropic-ai/sdk", "voyageai"],
   experimental: {
-    serverComponentsExternalPackages: ["@anthropic-ai/sdk", "voyageai"],
     serverActions: {
       bodySizeLimit: "10mb",
     },

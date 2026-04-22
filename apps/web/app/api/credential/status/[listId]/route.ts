@@ -7,7 +7,7 @@ import {
   getOrCreateEncodedList,
 } from "@/lib/credential/revocation";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 function getServiceClient() {
   return createClient(
