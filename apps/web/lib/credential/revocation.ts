@@ -1,6 +1,11 @@
+import { gzip as nodeGzip, gunzip as nodeGunzip } from "zlib";
+import { promisify } from "util";
 import { SignJWT } from "jose";
 import type { KeyLike } from "jose";
 import { KEY_ID } from "./keys.js";
+
+const gzipAsync = promisify(nodeGzip);
+const gunzipAsync = promisify(nodeGunzip);
 
 // The minimum StatusList2021 bitstring is 131,072 bits (16 KB) to prevent
 // correlation attacks where small lists reveal which credentials were issued.
@@ -13,42 +18,17 @@ export const DEFAULT_LIST_ID = "default";
 type AnyDB = any;
 
 // ---------------------------------------------------------------------------
-// Compression helpers (Web Streams API — works in Node 18+ and edge runtime)
+// Compression helpers (Node.js zlib — runs in Node.js API routes, not edge)
 // ---------------------------------------------------------------------------
 
 export async function gzip(data: Uint8Array): Promise<Uint8Array> {
-  const cs = new CompressionStream("gzip");
-  const writer = cs.writable.getWriter();
-  // Uint8Array satisfies BufferSource; explicit cast avoids TS strict-mode complaint
-  await writer.write(data as unknown as Uint8Array<ArrayBuffer>);
-  await writer.close();
-  return collectStream(cs.readable);
+  const result = await gzipAsync(data);
+  return new Uint8Array(result.buffer, result.byteOffset, result.byteLength);
 }
 
 export async function gunzip(data: Uint8Array): Promise<Uint8Array> {
-  const ds = new DecompressionStream("gzip");
-  const writer = ds.writable.getWriter();
-  await writer.write(data as unknown as Uint8Array<ArrayBuffer>);
-  await writer.close();
-  return collectStream(ds.readable);
-}
-
-async function collectStream(readable: ReadableStream<Uint8Array>): Promise<Uint8Array> {
-  const reader = readable.getReader();
-  const chunks: Uint8Array<ArrayBuffer>[] = [];
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (value) chunks.push(value as Uint8Array<ArrayBuffer>);
-  }
-  const total = chunks.reduce((n, c) => n + c.length, 0);
-  const out = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    out.set(chunk, offset);
-    offset += chunk.length;
-  }
-  return out;
+  const result = await gunzipAsync(data);
+  return new Uint8Array(result.buffer, result.byteOffset, result.byteLength);
 }
 
 // ---------------------------------------------------------------------------
