@@ -6,6 +6,10 @@ import { PedagogueAuthProvider } from "./auth/provider";
 import { executeSignIn } from "./commands/sign-in";
 import { executeSignOut } from "./commands/sign-out";
 import { initParser, applyDocumentEdits, invalidateDocument } from "./ast";
+import { runDiagnostics, clearDiagnostics, tutorCollection } from "./diagnostics/collection";
+import { registerHoverProvider } from "./diagnostics/hover";
+import { registerCodeActionsProvider } from "./diagnostics/actions";
+import { PtyNarrator } from "./pty/narrator";
 
 let _sessionId: string | undefined;
 
@@ -64,23 +68,56 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // Tree-sitter parser — init once; language WASMs load in parallel (T1-05)
+  // After init, run diagnostics on the currently active document if any
   initParser(context).then(() => {
     log.info("Tree-sitter parser ready");
+    const active = vscode.window.activeTextEditor?.document;
+    if (active) runDiagnostics(active);
   }).catch((err) => {
     log.warn(`Tree-sitter init failed: ${(err as Error).message}`);
   });
 
-  // Incremental re-parse on document change
+  // Incremental re-parse on document change (keeps the AST tree up to date)
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (event.contentChanges.length > 0) {
         applyDocumentEdits(event.document, event.contentChanges);
       }
     }),
+  );
+
+  // Diagnostics — on save: immediate; on active-editor switch: debounced 500 ms
+  let _diagDebounce: ReturnType<typeof setTimeout> | undefined;
+
+  context.subscriptions.push(
+    tutorCollection,
+
+    vscode.workspace.onDidSaveTextDocument((doc) => {
+      clearTimeout(_diagDebounce);
+      runDiagnostics(doc);
+    }),
+
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      clearTimeout(_diagDebounce);
+      if (editor) {
+        _diagDebounce = setTimeout(() => runDiagnostics(editor.document), 500);
+      }
+    }),
+
     vscode.workspace.onDidCloseTextDocument((doc) => {
+      clearTimeout(_diagDebounce);
       invalidateDocument(doc.uri.toString());
+      clearDiagnostics(doc.uri);
     }),
   );
+
+  // Language feature providers (T1-07)
+  registerHoverProvider(context);
+  registerCodeActionsProvider(context);
+
+  // Pseudoterminal narrator skeleton (T1-09 for full stderr→classifier wiring)
+  const narrator = new PtyNarrator(context);
+  context.subscriptions.push(narrator);
 
   // @tutor Chat Participant (T1-02)
   const participantHandler = createParticipantHandler(

@@ -93,6 +93,10 @@ export function invalidateDocument(uri: string): void {
   }
 }
 
+export function getLanguage(langId: string): Parser.Language | undefined {
+  return _languages.get(langId);
+}
+
 export function getSupportedLanguages(): string[] {
   return [...new Set(Object.keys(LANG_WASM).filter((l) => _languages.has(l)))];
 }

@@ -1,4 +1,4 @@
-export { initParser, parseDocument, applyDocumentEdits, invalidateDocument, getSupportedLanguages } from "./parser";
+export { initParser, parseDocument, applyDocumentEdits, invalidateDocument, getSupportedLanguages, getLanguage } from "./parser";
 
 import { pythonRules } from "./rules/python";
 import { javascriptRules } from "./rules/javascript";
