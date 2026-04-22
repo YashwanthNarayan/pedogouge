@@ -1,0 +1,12 @@
+[allowlist]
+description = "Ignore example/placeholder files"
+paths = [
+  ".env.example",
+  "apps/mobile/.env.example",
+]
+
+[[rules.allowlist]]
+description = "Ignore all-zeros Ed25519 placeholder in CI workflow"
+regexes = [
+  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+]
