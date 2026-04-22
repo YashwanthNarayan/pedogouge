@@ -90,6 +90,15 @@
       {
         "command": "pedagogue.prewarmCache",
         "title": "Pedagogue: Prewarm Cache (Demo)"
+      },
+      {
+        "command": "pedagogue.endSession",
+        "title": "Pedagogue: End Session"
+      },
+      {
+        "command": "pedagogue.runWithJudge0",
+        "title": "Run with Tutor (Judge0)",
+        "category": "Pedagogue"
       }
     ],
     "keybindings": [
@@ -98,6 +107,36 @@
         "key": "ctrl+alt+t",
         "mac": "cmd+alt+t",
         "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "command": "workbench.panel.chat.view.copilot.focus",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "!terminalFocus"
+      },
+      {
+        "command": "pedagogue.runWithTutor",
+        "key": "ctrl+alt+r",
+        "mac": "cmd+alt+r",
+        "when": "editorFocus && resourceExtname =~ /\\.(py|js|ts|java|c|cpp)$/"
+      },
+      {
+        "command": "pedagogue.openLesson",
+        "key": "ctrl+alt+l",
+        "mac": "cmd+alt+l",
+        "when": "editorFocus"
+      },
+      {
+        "command": "pedagogue.endSession",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e",
+        "when": "pedagogue.sessionActive"
+      },
+      {
+        "command": "pedagogue.runWithJudge0",
+        "key": "ctrl+alt+j",
+        "mac": "cmd+alt+j",
+        "when": "editorFocus && pedagogue.sessionActive && resourceExtname =~ /\\.(py|js|ts|java|c|cpp)$/"
       },
       {
         "command": "pedagogue.defend",
@@ -117,6 +156,16 @@
           "type": "string",
           "default": "https://pedagogue.app",
           "description": "Pedagogue backend URL"
+        },
+        "pedagogue.supabaseUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Supabase project URL (for realtime interventions)"
+        },
+        "pedagogue.supabaseAnonKey": {
+          "type": "string",
+          "default": "",
+          "description": "Supabase anon key (public, safe to store in settings)"
         }
       }
     },
@@ -144,13 +193,15 @@
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit",
-    "package": "vsce package",
+    "package": "rm -f dist/pedagogue-tutor.vsix && vsce package --no-dependencies --out dist/pedagogue-tutor.vsix",
+    "package:sign": "rm -f dist/pedagogue-tutor.vsix && vsce package --no-dependencies --out dist/pedagogue-tutor.vsix && echo 'Sign with: vsce sign'",
     "lint": "echo 'TODO: eslint'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",
     "@pedagogue/shared": "workspace:*",
     "@supabase/supabase-js": "^2.46.0",
+    "jose": "^5.9.0",
     "tree-sitter-wasms": "^0.1.13",
     "web-tree-sitter": "^0.22.6",
     "y-websocket": "^2.0.4",

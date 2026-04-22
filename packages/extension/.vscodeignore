@@ -1,0 +1,14 @@
+src/**
+!dist/**
+dist/*.vsix
+node_modules/**
+**/*.ts
+**/*.map
+**/*.test.*
+**/__tests__/**
+.gitignore
+.env*
+tsconfig.json
+**/*.tsbuildinfo
+esbuild.js
+esbuild.mjs

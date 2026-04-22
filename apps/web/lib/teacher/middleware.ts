@@ -12,12 +12,12 @@ export function createServiceClient(): SupabaseClient {
   return createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 }
 
-export function createCookieClient(): SupabaseClient {
-  const cookieStore = cookies();
+export async function createCookieClient(): Promise<SupabaseClient> {
+  const cookieStore = await cookies();
   return createServerClient(SUPABASE_URL, ANON_KEY, {
     cookies: {
       getAll: () => cookieStore.getAll(),
-      setAll: (list) => {
+      setAll: (list: Array<{ name: string; value: string; options?: object }>) => {
         try { for (const { name, value, options } of list) cookieStore.set(name, value, options); }
         catch { /* Server Component context — no-op */ }
       },

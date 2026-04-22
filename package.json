@@ -19,7 +19,8 @@
     "test:rls": "pnpm --filter @pedagogue/infra-tests run test:rls",
     "seed:demo": "pnpm --filter @pedagogue/cli run seed:demo",
     "ingest:kb": "pnpm --filter @pedagogue/cli run ingest:kb",
-    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "package:ext": "pnpm --filter pedagogue-extension run package"
   },
   "devDependencies": {
     "turbo": "^2.3.0",

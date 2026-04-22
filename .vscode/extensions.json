@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-playwright.playwright",
+    "bierner.markdown-mermaid",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    "supabase.supabase-vscode",
+    "unifiedjs.vscode-mdx",
+    "vitest.explorer"
+  ]
+}

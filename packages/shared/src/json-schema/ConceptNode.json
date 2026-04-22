@@ -1,0 +1,68 @@
+{
+  "$ref": "#/definitions/ConceptNode",
+  "definitions": {
+    "ConceptNode": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "masteryScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "decayRate": {
+          "type": "number"
+        },
+        "lastTestedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "relatedErrors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "strugglePattern": {
+          "type": "string",
+          "enum": [
+            "none",
+            "conceptual_gap",
+            "integration",
+            "surface_fix"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "prerequisites",
+        "masteryScore",
+        "decayRate",
+        "lastTestedAt",
+        "relatedErrors",
+        "strugglePattern"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

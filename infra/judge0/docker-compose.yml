@@ -1,0 +1,44 @@
+# Judge0 CE + Extra CE self-hosted
+# Setup instructions: infra/judge0/README.md
+# Target: DigitalOcean 4vCPU/8GB droplet, Ubuntu 22.04
+
+version: "3.9"
+
+services:
+  server:
+    image: judge0/judge0:latest
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    ports:
+      - "2358:2358"
+    privileged: true
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  workers:
+    image: judge0/judge0:latest
+    command: ["./scripts/workers"]
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    privileged: true
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16
+    env_file: judge0.conf
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    restart: always
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    restart: always
+
+volumes:
+  postgres_data:

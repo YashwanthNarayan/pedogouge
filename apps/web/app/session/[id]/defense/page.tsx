@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, use } from "react";
 import { useRouter } from "next/navigation";
 import { Transcript, type TranscriptTurn } from "@/components/defense/transcript";
 import { PhaseIndicator, type DefensePhase } from "@/components/defense/phase-indicator";
@@ -14,14 +14,15 @@ import { DefenseConnection, type ServerMessage } from "@/components/defense/conn
 // ---------------------------------------------------------------------------
 
 interface DefensePageProps {
-  params: { id: string };
-  searchParams?: { teacher?: string };
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ teacher?: string }>;
 }
 
 export default function DefensePage({ params, searchParams }: DefensePageProps) {
   const router = useRouter();
-  const sessionId = params.id;
-  const isTeacherView = searchParams?.teacher === "true";
+  const { id: sessionId } = use(params);
+  const resolvedSearch = searchParams ? use(searchParams) : undefined;
+  const isTeacherView = resolvedSearch?.teacher === "true";
 
   // State
   const [consentChecked, setConsentChecked] = useState(false);

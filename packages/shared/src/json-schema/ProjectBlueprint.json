@@ -1,0 +1,220 @@
+{
+  "$ref": "#/definitions/ProjectBlueprint",
+  "definitions": {
+    "ProjectBlueprint": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "userStory": {
+                "type": "string"
+              },
+              "acceptanceCriteria": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "complexity": {
+                "type": "string",
+                "enum": [
+                  "trivial",
+                  "easy",
+                  "medium",
+                  "hard"
+                ]
+              },
+              "conceptIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "userStory",
+              "acceptanceCriteria",
+              "complexity",
+              "conceptIds"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dataModels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "name",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "apiSurface": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "purpose": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "path",
+              "purpose"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "conceptGraph": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "estimatedMinutes": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "prerequisites",
+              "estimatedMinutes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "scopedMvp": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ambiguities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommendedLanguage": {
+          "type": "string",
+          "enum": [
+            "python",
+            "javascript",
+            "typescript",
+            "java",
+            "cpp"
+          ]
+        },
+        "starterRepo": {
+          "type": "object",
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "content"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "testCmd": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "files",
+            "testCmd"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "title",
+        "summary",
+        "features",
+        "dataModels",
+        "apiSurface",
+        "conceptGraph",
+        "scopedMvp",
+        "ambiguities",
+        "recommendedLanguage",
+        "starterRepo"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

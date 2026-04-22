@@ -1,0 +1,25 @@
+{
+  "name": "pedagogue-yws",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "npx tsx src/server.ts",
+    "build": "tsc --noEmit",
+    "start:ts": "npx tsx src/server.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.46.0",
+    "jose": "^5.9.0",
+    "ws": "^8.18.0",
+    "y-websocket": "^2.0.4",
+    "yjs": "^13.6.20"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

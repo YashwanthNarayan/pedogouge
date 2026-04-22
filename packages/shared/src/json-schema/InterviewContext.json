@@ -1,0 +1,158 @@
+{
+  "$ref": "#/definitions/InterviewContext",
+  "definitions": {
+    "InterviewContext": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": [
+            "blueprint_interrogation",
+            "bug_injection",
+            "counterfactual",
+            "complete"
+          ]
+        },
+        "askedQuestions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "phase": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "text",
+              "phase"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "answers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "questionId": {
+                "type": "string"
+              },
+              "answerText": {
+                "type": "string"
+              },
+              "audioUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "rubricScore": {
+                "type": "object",
+                "properties": {
+                  "correctness": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "reasoningDepth": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "tradeoffAwareness": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "required": [
+                  "correctness",
+                  "reasoningDepth",
+                  "tradeoffAwareness"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "questionId",
+              "answerText",
+              "rubricScore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "injectedBug": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "conceptId": {
+                  "type": "string"
+                },
+                "originalCode": {
+                  "type": "string"
+                },
+                "mutatedCode": {
+                  "type": "string"
+                },
+                "studentFixed": {
+                  "type": "boolean"
+                },
+                "fixDiff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "conceptId",
+                "originalCode",
+                "mutatedCode",
+                "studentFixed"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "counterfactuals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "type": "string"
+              },
+              "response": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "prompt",
+              "response",
+              "score"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "phase",
+        "askedQuestions",
+        "answers",
+        "injectedBug",
+        "counterfactuals"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

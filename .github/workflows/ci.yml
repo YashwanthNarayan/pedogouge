@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test + Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          # RLS tests skip automatically if these are absent
+
+      - name: Build web app
+        run: pnpm --filter @pedagogue/web build
+        env:
+          NEXT_PUBLIC_APP_URL: https://pedagogue.vercel.app
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ANTHROPIC_API_KEY: placeholder
+          VOYAGE_API_KEY: placeholder
+          # Build-time placeholders — routes fail at runtime if missing, not at build
+          JWT_SECRET: placeholder
+          SUPABASE_SERVICE_ROLE_KEY: placeholder
+          JUDGE0_URL: https://placeholder.example.com
+          JUDGE0_AUTH_TOKEN: placeholder
+          JUDGE0_CALLBACK_SECRET: placeholder
+          CREDENTIAL_PRIVATE_KEY_JWK: '{"kty":"OKP","crv":"Ed25519","x":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","d":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}'
+          CREDENTIAL_PUBLIC_KEY_JWK: '{"kty":"OKP","crv":"Ed25519","x":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}'
+          NEXT_PUBLIC_GITHUB_CLIENT_ID: placeholder
+
+  typecheck-extension:
+    name: Typecheck Extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter pedagogue-extension exec tsc --noEmit
+
+  package-vsix:
+    name: Package VSIX
+    runs-on: ubuntu-latest
+    needs: [test, typecheck-extension]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter pedagogue-extension build
+
+      - run: pnpm --filter pedagogue-extension run package
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pedagogue-tutor-vsix
+          path: packages/extension/dist/pedagogue-tutor.vsix
+          retention-days: 14
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

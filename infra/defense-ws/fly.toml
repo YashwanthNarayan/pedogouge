@@ -1,0 +1,46 @@
+app = "pedagogue-defense-ws"
+primary_region = "ord"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "3001"
+  NODE_ENV = "production"
+
+[[services]]
+  internal_port = 3001
+  protocol = "tcp"
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    [services.ports.force_https]
+      enabled = true
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 100
+    soft_limit = 80
+
+  # WebSocket upgrade passthrough — Fly's http handler forwards Upgrade: websocket
+  # automatically; no extra config needed beyond the http handler above.
+
+[resources]
+  memory = "2gb"
+  cpu_kind = "shared"
+  cpus = 2
+
+[checks]
+  [checks.alive]
+    type = "tcp"
+    port = 3001
+    interval = "15s"
+    timeout = "5s"

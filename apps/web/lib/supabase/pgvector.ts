@@ -10,8 +10,8 @@ export interface MatchedChunk {
   similarity: number;
 }
 
-export function createSupabaseServerClient() {
-  const cookieStore = cookies();
+export async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -20,7 +20,7 @@ export function createSupabaseServerClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: Array<{ name: string; value: string; options?: object }>) {
           try {
             for (const { name, value, options } of cookiesToSet) {
               cookieStore.set(name, value, options);
@@ -38,7 +38,7 @@ export async function matchChunks(
   queryEmbedding: number[],
   opts: { k?: number; conceptFilter?: string; difficultyFilter?: string } = {},
 ): Promise<MatchedChunk[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.rpc("match_chunks", {
     query_vec: queryEmbedding,
     k: opts.k ?? 5,

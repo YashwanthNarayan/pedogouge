@@ -1,6 +1,13 @@
 import * as vscode from "vscode";
 import { SecretStore } from "./secrets";
 
+// Forward-declared — set by extension.ts after activation so the URI handler
+// can call setSessionId without a circular import.
+let _setSessionId: ((id: string) => void) | undefined;
+export function registerSetSessionId(fn: (id: string) => void): void {
+  _setSessionId = fn;
+}
+
 // Matches auth codes: alphanumeric + dash/underscore, reasonable length bounds
 const CODE_RE = /^[A-Za-z0-9_-]{10,512}$/;
 const STATE_TTL_MS = 5 * 60 * 1000;
@@ -28,6 +35,23 @@ export class PedagogueUriHandler implements vscode.UriHandler, vscode.Disposable
   }
 
   private async _handle(uri: vscode.Uri): Promise<void> {
+    if (uri.path === "/connect") {
+      const params = new URLSearchParams(uri.query);
+      const sessionId = params.get("sessionId");
+      const token = params.get("token");
+
+      if (sessionId) {
+        _setSessionId?.(sessionId);
+        if (token) {
+          await this.secrets.storeToken(token);
+        }
+        void vscode.window.showInformationMessage(
+          `Pedagogue: linked to session ${sessionId.slice(0, 8)}…`,
+        );
+      }
+      return;
+    }
+
     if (uri.path !== "/callback") return;
 
     const params = new URLSearchParams(uri.query);

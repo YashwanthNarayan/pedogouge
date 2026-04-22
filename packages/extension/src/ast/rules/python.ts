@@ -37,8 +37,8 @@ export const pythonRules: RuleSet = {
       id: "py-bare-except",
       description: "Bare except: clause catches everything including KeyboardInterrupt",
       severity: "warning",
-      // Matches any except_clause — post-filter for ones with no exception type
-      pattern: `(except_clause) @match`,
+      // Matches only bare `except:` — except_clause with no value field (no exception type)
+      pattern: `(except_clause !value) @match`,
       message: "Bare 'except:' catches all exceptions. Specify the exception type (e.g. 'except ValueError:').",
       conceptId: "py-exception-handling",
     },
@@ -46,10 +46,11 @@ export const pythonRules: RuleSet = {
       id: "py-eq-none",
       description: "== None comparison — use 'is None' instead",
       severity: "warning",
-      // Matches any comparison that includes a None literal
+      // Matches `x == None` only — operators: "==" excludes `is` and `is not`
       pattern: `
         (comparison_operator
-          (none) @_none) @match
+          operators: "=="
+          (none)) @match
       `,
       message: "Use 'is None' (identity check) instead of '== None' (equality check).",
       conceptId: "py-identity-equality",

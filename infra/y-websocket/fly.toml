@@ -1,0 +1,36 @@
+app = "pedagogue-y-websocket"
+primary_region = "ord"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "4444"
+  NODE_ENV = "production"
+
+[[services]]
+  internal_port = 4444
+  protocol = "tcp"
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    [services.ports.force_https]
+      enabled = true
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 500
+    soft_limit = 400
+
+[resources]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

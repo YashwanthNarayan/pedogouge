@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Pedagogue",
+    "slug": "pedagogue",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "pedagogue",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.pedagogue.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "app.pedagogue.mobile"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": ["expo-router", "expo-notifications"],
+    "notifications": {
+      "icon": "./assets/icon.png",
+      "color": "#4f46e5"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "TBD"
+      }
+    }
+  }
+}

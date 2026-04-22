@@ -4,7 +4,7 @@ import { logTeacherView } from "@/lib/teacher/audit";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { classId: string; studentId: string } },
+  { params }: { params: Promise<{ classId: string; studentId: string }> },
 ) {
   let ctx;
   try {
@@ -14,7 +14,7 @@ export async function GET(
   }
 
   const { userId, classIds, supabase } = ctx;
-  const { classId, studentId } = params;
+  const { classId, studentId } = await params;
 
   if (!classIds.includes(classId)) {
     return NextResponse.json({ error: "Class not found or not owned by this teacher" }, { status: 404 });
