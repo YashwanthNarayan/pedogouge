@@ -162,19 +162,41 @@ export async function runIntake(projectIdea: string): Promise<z.infer<typeof Pro
     }),
   );
 
-  const toolUses = specialistNames
-    .map((name) => toolUseMap.get(name))
-    .filter((tu): tu is Anthropic.ToolUseBlock => tu !== undefined);
-
-  // Build tool results for the synthesis call
-  const toolResults = toolUses.map((tu, i) => ({
-    type: "tool_result" as const,
-    tool_use_id: tu.id,
-    content: JSON.stringify(specialistResults[i]),
-  }));
-
   // Merge specialist outputs into a coherent blueprint for synthesis
   const merged = Object.assign({}, ...specialistResults) as Record<string, unknown>;
+
+  const isProxyMode = !!process.env.ANTHROPIC_BASE_URL;
+
+  // In proxy mode: send merged specialist data directly — proxy can't handle
+  // multi-turn tool_use/tool_result message history reliably
+  const synthesisMessages: Anthropic.MessageParam[] = isProxyMode
+    ? [
+        {
+          role: "user",
+          content: `<user_input>Project idea: ${projectIdea}\n\nSpecialist outputs:\nArchitect: ${JSON.stringify(specialistResults[0])}\nPedagogue: ${JSON.stringify(specialistResults[1])}\nScoper: ${JSON.stringify(specialistResults[2])}</user_input>`,
+        },
+      ]
+    : [
+        {
+          role: "user",
+          content: `<user_input>Project idea: ${projectIdea}</user_input>`,
+        },
+        {
+          role: "assistant",
+          content: r1.content,
+        },
+        {
+          role: "user",
+          // Correctly map each tool_use ID to its specialist result (avoid index mismatch)
+          content: specialistNames
+            .filter((name) => toolUseMap.has(name))
+            .map((name) => ({
+              type: "tool_result" as const,
+              tool_use_id: toolUseMap.get(name)!.id,
+              content: JSON.stringify(specialistResults[specialistNames.indexOf(name)]),
+            })),
+        },
+      ];
 
   // Call 2: Opus synthesizes all tool results into a ProjectBlueprint (cache hit on system)
   const synthesis = await call<z.infer<typeof ProjectBlueprint>>({
@@ -184,20 +206,7 @@ export async function runIntake(projectIdea: string): Promise<z.infer<typeof Pro
       canary: generateCanary(),
       extra: `Synthesize the outputs from architect, pedagogue, and scoper into a single cohesive ProjectBlueprint. Ensure concept IDs in features match those in conceptGraph. Ensure the starterRepo files are consistent with the features.`,
     }),
-    messages: [
-      {
-        role: "user",
-        content: `<user_input>Project idea: ${projectIdea}</user_input>`,
-      },
-      {
-        role: "assistant",
-        content: r1.content,
-      },
-      {
-        role: "user",
-        content: toolResults,
-      },
-    ],
+    messages: synthesisMessages,
     output_schema: ProjectBlueprint,
     max_tokens: 8192,
   });

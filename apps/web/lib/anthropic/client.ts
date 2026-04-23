@@ -101,13 +101,15 @@ export async function withRetry<T>(
 // JSON extraction helper — handles markdown code fences from proxy responses
 // ---------------------------------------------------------------------------
 function extractJSON(text: string): string {
-  // Strip ```json ... ``` or ``` ... ``` fences
-  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch?.[1]) return fenceMatch[1].trim();
-  // Fall back to first { ... } substring
+  // Check for a JSON object first — handles direct JSON and JSON inside fences.
+  // Doing this before fence extraction avoids false matches on embedded markdown
+  // code fences inside JSON string values (e.g. starterRepo file content with ```bash).
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start !== -1 && end !== -1 && end > start) return text.slice(start, end + 1);
+  // Fall back: response might be a lone fence with JSON inside
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch?.[1]) return fenceMatch[1].trim();
   return text;
 }
 
@@ -160,10 +162,12 @@ async function callOnce<T = string>(opts: CallOptions<T>): Promise<CallResult<T>
   let wrappedMessages = wrapUserContent(opts.messages);
 
   // In proxy mode without response_format, instruct the model to return raw JSON
+  // Include the JSON schema so the model knows the exact field names and types required.
   if (proxyMode && opts.output_schema) {
+    const schema = zodToJsonSchema(opts.output_schema);
     const jsonInstruction: Anthropic.MessageParam = {
       role: "user",
-      content: "Respond with a valid JSON object ONLY. No markdown code fences, no prose, no explanation — just raw JSON that matches the required schema.",
+      content: `Output ONLY a raw JSON object — no markdown code fences, no prose, no explanation — that strictly conforms to this JSON Schema:\n${JSON.stringify(schema, null, 2)}`,
     };
     wrappedMessages = [...wrappedMessages, jsonInstruction];
   }
