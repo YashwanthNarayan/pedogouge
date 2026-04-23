@@ -98,6 +98,20 @@ export async function withRetry<T>(
 }
 
 // ---------------------------------------------------------------------------
+// JSON extraction helper — handles markdown code fences from proxy responses
+// ---------------------------------------------------------------------------
+function extractJSON(text: string): string {
+  // Strip ```json ... ``` or ``` ... ``` fences
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch?.[1]) return fenceMatch[1].trim();
+  // Fall back to first { ... } substring
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start !== -1 && end !== -1 && end > start) return text.slice(start, end + 1);
+  return text;
+}
+
+// ---------------------------------------------------------------------------
 // Singleton client
 // ---------------------------------------------------------------------------
 // Proxy mode: custom base URL (e.g. vibetoken) that doesn't support Anthropic betas
@@ -213,7 +227,7 @@ async function callOnce<T = string>(opts: CallOptions<T>): Promise<CallResult<T>
   let parsed: T;
   if (opts.output_schema) {
     try {
-      const jsonObj = JSON.parse(responseText);
+      const jsonObj = JSON.parse(extractJSON(responseText));
       parsed = opts.output_schema.parse(jsonObj) as T;
     } catch (err) {
       throw new SchemaParseError(err, responseText);
