@@ -152,7 +152,7 @@ async function callOnce<T = string>(opts: CallOptions<T>): Promise<CallResult<T>
   const requestParams: Anthropic.MessageCreateParamsNonStreaming = {
     model: Models[opts.model],
     max_tokens: opts.max_tokens ?? 8192,
-    temperature: opts.temperature ?? 0.4,
+    ...(opts.temperature != null ? { temperature: opts.temperature } : {}),
     system: system as Anthropic.TextBlockParam[],
     messages: wrappedMessages,
     ...(opts.tools ? { tools: opts.tools } : {}),
@@ -267,7 +267,7 @@ export async function* callStream(opts: StreamOptions): AsyncGenerator<string> {
   const stream = getClient().messages.stream({
     model: Models[opts.model],
     max_tokens: opts.max_tokens ?? 8192,
-    temperature: opts.temperature ?? 0.4,
+    ...(opts.temperature != null ? { temperature: opts.temperature } : {}),
     system: opts.system as Anthropic.TextBlockParam[],
     messages: wrappedMessages,
     ...(opts.tools ? { tools: opts.tools } : {}),
