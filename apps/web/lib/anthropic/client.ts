@@ -100,6 +100,9 @@ export async function withRetry<T>(
 // ---------------------------------------------------------------------------
 // Singleton client
 // ---------------------------------------------------------------------------
+// Proxy mode: custom base URL (e.g. vibetoken) that doesn't support Anthropic betas
+const proxyMode = !!process.env.ANTHROPIC_BASE_URL;
+
 let _client: Anthropic | null = null;
 function getClient(): Anthropic {
   if (!_client) {
@@ -142,9 +145,9 @@ async function callOnce<T = string>(opts: CallOptions<T>): Promise<CallResult<T>
 
   const wrappedMessages = wrapUserContent(opts.messages);
 
-  const extraHeaders: Record<string, string> = {
-    "anthropic-beta": "output-300k-2026-03-24",
-  };
+  const extraHeaders: Record<string, string> = proxyMode
+    ? {}
+    : { "anthropic-beta": "output-300k-2026-03-24" };
 
   const requestParams: Anthropic.MessageCreateParamsNonStreaming = {
     model: Models[opts.model],
@@ -156,7 +159,7 @@ async function callOnce<T = string>(opts: CallOptions<T>): Promise<CallResult<T>
     ...(opts.tool_choice ? { tool_choice: opts.tool_choice } : {}),
     ...(opts.output_schema
       ? {
-          betas: ["output-128k-2025-02-19"],
+          ...(proxyMode ? {} : { betas: ["output-128k-2025-02-19"] }),
           response_format: {
             type: "json_schema" as const,
             json_schema: {
@@ -311,7 +314,7 @@ export async function callWithCitations(opts: {
       max_tokens: opts.max_tokens ?? 8192,
       system: opts.system as Anthropic.TextBlockParam[],
       messages: wrappedMessages,
-      betas: ["citations-2025-04-04"],
+      ...(proxyMode ? {} : { betas: ["citations-2025-04-04"] }),
     } as Anthropic.MessageCreateParamsNonStreaming),
   );
 
