@@ -3,6 +3,7 @@ import { z } from "zod";
 import { runIntake } from "@/lib/anthropic/intake-pipeline";
 import { embed } from "@/lib/embeddings/voyage-client";
 import { IntakeRequest } from "@pedagogue/shared";
+import { SchemaParseError } from "@/lib/anthropic/errors";
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -53,6 +54,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ sessionId, blueprint });
   } catch (err) {
+    if (err instanceof SchemaParseError) {
+      console.error("[intake] Schema validation failed\n  raw:", err.raw, "\n  zod:", err.zodError);
+    } else {
+      console.error("[intake] Error:", err);
+    }
     const message = err instanceof Error ? err.message : "Internal error";
     if (message.includes("401") || message.includes("Unauthorized")) {
       return NextResponse.json({ error: "Anthropic auth failed" }, { status: 502 });

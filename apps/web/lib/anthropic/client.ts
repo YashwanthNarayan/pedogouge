@@ -157,7 +157,16 @@ async function callOnce<T = string>(opts: CallOptions<T>): Promise<CallResult<T>
   const canary = generateCanary();
   const system = opts.system; // canary already injected by assembleSystemPrompt
 
-  const wrappedMessages = wrapUserContent(opts.messages);
+  let wrappedMessages = wrapUserContent(opts.messages);
+
+  // In proxy mode without response_format, instruct the model to return raw JSON
+  if (proxyMode && opts.output_schema) {
+    const jsonInstruction: Anthropic.MessageParam = {
+      role: "user",
+      content: "Respond with a valid JSON object ONLY. No markdown code fences, no prose, no explanation — just raw JSON that matches the required schema.",
+    };
+    wrappedMessages = [...wrappedMessages, jsonInstruction];
+  }
 
   const extraHeaders: Record<string, string> = proxyMode
     ? {}
@@ -230,6 +239,7 @@ async function callOnce<T = string>(opts: CallOptions<T>): Promise<CallResult<T>
       const jsonObj = JSON.parse(extractJSON(responseText));
       parsed = opts.output_schema.parse(jsonObj) as T;
     } catch (err) {
+      console.error("[anthropic] Schema validation failed. Raw response:", responseText);
       throw new SchemaParseError(err, responseText);
     }
   } else {

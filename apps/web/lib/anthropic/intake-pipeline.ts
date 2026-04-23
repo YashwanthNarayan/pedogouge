@@ -146,18 +146,25 @@ export async function runIntake(projectIdea: string): Promise<z.infer<typeof Pro
     ...(process.env.ANTHROPIC_BASE_URL ? {} : { betas: ["output-300k-2026-03-24"] }),
   });
 
-  // Extract the 3 tool_use blocks
-  const toolUses = r1.content.filter(
-    (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+  // Extract tool_use blocks — proxy may return fewer than 3 (sequential instead of parallel)
+  const toolUseMap = new Map(
+    r1.content
+      .filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use")
+      .map((tu) => [tu.name, tu]),
   );
-  if (toolUses.length !== 3) {
-    throw new Error(`Expected 3 parallel tool uses (architect, pedagogue, scoper), got ${toolUses.length}`);
-  }
 
-  // Run specialists in parallel
+  // For any missing specialist, call directly with the project idea
+  const specialistNames = ["architect", "pedagogue", "scoper"] as const;
   const specialistResults = await Promise.all(
-    toolUses.map((tu) => runSpecialist(tu.name, tu.input as Record<string, unknown>)),
+    specialistNames.map((name) => {
+      const tu = toolUseMap.get(name);
+      return runSpecialist(name, tu ? (tu.input as Record<string, unknown>) : { projectIdea });
+    }),
   );
+
+  const toolUses = specialistNames
+    .map((name) => toolUseMap.get(name))
+    .filter((tu): tu is Anthropic.ToolUseBlock => tu !== undefined);
 
   // Build tool results for the synthesis call
   const toolResults = toolUses.map((tu, i) => ({
