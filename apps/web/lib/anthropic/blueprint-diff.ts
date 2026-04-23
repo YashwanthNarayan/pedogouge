@@ -235,7 +235,6 @@ export async function analyzeBlueprintDiff(
   const response = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 4096,
-    temperature: 0.3,
     system: systemBlocks as Anthropic.TextBlockParam[],
     tools: [PRODUCE_SEEDS_TOOL],
     tool_choice: { type: "any" },

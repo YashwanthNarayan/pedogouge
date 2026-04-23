@@ -245,7 +245,6 @@ export async function* runDefenseTurn(opts: {
   const stream = anthropic.messages.stream({
     model: "claude-sonnet-4-6",
     max_tokens: 1024,
-    temperature: 0.3,
     system: systemContent,
     tools: defenseTools,
     tool_choice: { type: "auto" },

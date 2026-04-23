@@ -413,7 +413,6 @@ export class TurnManager {
       const stream = this.anthropic.messages.stream({
         model: "claude-sonnet-4-6",
         max_tokens: 1024,
-        temperature: 0.3,
         system,
         tools: DEFENSE_TOOLS,
         tool_choice: { type: "auto" },

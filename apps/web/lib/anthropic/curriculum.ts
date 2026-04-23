@@ -191,7 +191,6 @@ export async function generateLesson(sessionId: string, conceptId: string): Prom
     ],
     output_schema: LessonMetadata,
     max_tokens: 512,
-    temperature: 0.1,
   });
 
   return {

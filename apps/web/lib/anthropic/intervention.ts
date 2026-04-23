@@ -159,7 +159,6 @@ export async function selectIntervention(input: {
     ],
     output_schema: InterventionDecision,
     max_tokens: 512,
-    temperature: 0.2,
   });
 
   return result.parsed;
@@ -192,7 +191,6 @@ async function generateNudge(
       },
     ],
     max_tokens: 128,
-    temperature: 0.4,
   });
 
   return { content_md: result.parsed as unknown as string };
@@ -222,7 +220,6 @@ async function generateProbe(
     ],
     output_schema: MCQPayload,
     max_tokens: 512,
-    temperature: 0.3,
   });
 
   const payload = result.parsed;
@@ -282,7 +279,6 @@ async function generateRegression(
       },
     ],
     max_tokens: 256,
-    temperature: 0.3,
   });
 
   return {

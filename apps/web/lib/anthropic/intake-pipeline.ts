@@ -109,7 +109,6 @@ async function runSpecialist(
     ],
     output_schema: outputSchema,
     max_tokens: 4096,
-    temperature: 0.3,
   });
 
   return result.parsed as unknown as ArchitectOutput | PedagogueOutput | ScoperOutput;
@@ -194,7 +193,6 @@ export async function runIntake(projectIdea: string): Promise<z.infer<typeof Pro
     ],
     output_schema: ProjectBlueprint,
     max_tokens: 8192,
-    temperature: 0.2,
   });
 
   void merged; // specialists already passed through synthesis

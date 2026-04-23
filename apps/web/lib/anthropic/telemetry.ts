@@ -88,7 +88,6 @@ export async function classifyStderr(input: {
     ],
     output_schema: ClassifySchema,
     max_tokens: 256,
-    temperature: 0.1,
   });
 
   // Safety: filter out any IDs the model hallucinated that aren't in the graph

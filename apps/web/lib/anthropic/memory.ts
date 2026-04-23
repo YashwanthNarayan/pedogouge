@@ -89,7 +89,6 @@ export async function generateSessionMemory(
     ],
     messages: [{ role: "user", content: userPrompt }],
     max_tokens: 512,
-    temperature: 0.2,
   });
 
   const memoryText = result.parsed.trim();
