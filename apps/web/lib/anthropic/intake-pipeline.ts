@@ -119,7 +119,10 @@ async function runSpecialist(
 // Main intake pipeline: 1 parallel fan-out call + 1 synthesis call
 // ---------------------------------------------------------------------------
 export async function runIntake(projectIdea: string): Promise<z.infer<typeof ProjectBlueprint>> {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+    ...(process.env.ANTHROPIC_BASE_URL ? { baseURL: process.env.ANTHROPIC_BASE_URL } : {}),
+  });
 
   // Call 1: Opus fans out to all 3 tools in parallel
   const r1 = await client.messages.create({

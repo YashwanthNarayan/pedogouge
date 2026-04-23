@@ -227,7 +227,10 @@ export async function analyzeBlueprintDiff(
 
   const systemBlocks = buildSystemBlocks(blueprint, editorSnapshots, conceptNodes);
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  const anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY!,
+    ...(process.env.ANTHROPIC_BASE_URL ? { baseURL: process.env.ANTHROPIC_BASE_URL } : {}),
+  });
 
   const response = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
