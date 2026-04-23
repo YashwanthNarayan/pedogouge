@@ -140,8 +140,8 @@ export async function runIntake(projectIdea: string): Promise<z.infer<typeof Pro
         content: `<user_input>${projectIdea}</user_input>`,
       },
     ],
-    // @ts-expect-error beta header
-    betas: ["output-300k-2026-03-24"],
+    // @ts-expect-error beta header — omitted in proxy mode
+    ...(process.env.ANTHROPIC_BASE_URL ? {} : { betas: ["output-300k-2026-03-24"] }),
   });
 
   // Extract the 3 tool_use blocks

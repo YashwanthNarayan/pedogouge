@@ -251,7 +251,7 @@ export async function* runDefenseTurn(opts: {
     messages,
     // Fine-grained tool streaming: yields tool input deltas as they arrive
     // so we can show progress UI before the tool fires.
-    betas: ["fine-grained-tool-streaming-2025-05-14"],
+    ...(process.env.ANTHROPIC_BASE_URL ? {} : { betas: ["fine-grained-tool-streaming-2025-05-14"] }),
   });
 
   // Accumulate tool_use blocks to execute when complete
