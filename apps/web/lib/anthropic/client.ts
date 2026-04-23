@@ -157,9 +157,9 @@ async function callOnce<T = string>(opts: CallOptions<T>): Promise<CallResult<T>
     messages: wrappedMessages,
     ...(opts.tools ? { tools: opts.tools } : {}),
     ...(opts.tool_choice ? { tool_choice: opts.tool_choice } : {}),
-    ...(opts.output_schema
+    ...(opts.output_schema && !proxyMode
       ? {
-          ...(proxyMode ? {} : { betas: ["output-128k-2025-02-19"] }),
+          betas: ["output-128k-2025-02-19"],
           response_format: {
             type: "json_schema" as const,
             json_schema: {
